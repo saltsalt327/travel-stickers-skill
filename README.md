@@ -1,9 +1,10 @@
 # Travel Memory Card Duo
 
-一个用于 Codex 的双图版旅行记忆卡技能。输入一张照片后，它会输出两张彼此匹配的图片：
+一个用于 Codex 的三图版旅行记忆卡技能。输入 1–5 张照片后，它会按顺序输出三张彼此匹配的图片：
 
-1. **完整旅行记忆卡**：3:2 横版卡片，包含主插画、三个英文关键词和六枚贴纸。
-2. **独立透明贴纸 PNG**：额外输出一张单独的 `.png` 文件，只保留与完整卡片相同的六枚贴纸。
+1. **完整旅行记忆卡**：3:2 横版卡片，包含主插画、三个英文关键词和九枚贴纸。
+2. **独立透明贴纸 PNG**：额外输出一张单独的 `.png` 文件，只保留与完整卡片相同的九枚贴纸。
+3. **贴纸商品包装展示图**：在透明 PNG 验证完成后，再生成一张 3:4 竖版的实体贴纸包装预览图。
 
 ## 透明 PNG 版本的含义
 
@@ -12,30 +13,34 @@
 - 文件格式为 **PNG**；
 - 图像带有真实 **Alpha 透明通道（RGBA）**；
 - 整张纸张背景被移除；
-- 六枚贴纸保留暖白色手剪边缘；
+- 九枚贴纸保留窄一些的暖白色手剪边缘；
 - 不含标题、关键词、标签、阴影或其他装饰；
 - 可直接用于二次排版、社交媒体、数字手账或贴纸打印准备。
 
-## Two coordinated outputs
+包装展示图是独立的商品陈列预览，不是透明 PNG 的替代品。它先生成较矮的满幅贴顶蓝灰色包装卡、挂孔、动态地点标题、`9 PIECES` 数量标识和暖米白纸张背景，再用固定排版脚本放置九枚贴纸；包装卡下方的九枚贴纸按严格三列×三行网格排列，以贴纸实际可见的最外层切边为测量基准，左右外边距、列间距、行间距，以及包装卡下缘到第一排贴纸与最后一排贴纸到底边的上下留白统一，同时提高九枚贴纸在网格中的占用面积。贴纸切边进一步缩窄为约 3–6 px。包装背景和阴影只存在于展示图中，不会进入透明 PNG。
 
-Given one source photo, this Codex skill produces:
+## Three coordinated outputs
+
+Given one to five source photos, this Codex skill produces:
 
 1. A finished 3:2 collectible travel memory card.
-2. A separate transparent-background `.png` sticker image containing the same six sticker motifs.
+2. A separate transparent-background `.png` sticker image containing the same nine sticker motifs.
+3. A 3:4 opaque retail-style sticker-packaging preview generated only after the transparent PNG passes validation.
 
 The sticker PNG is a real RGBA file with an Alpha channel, not a flattened image with a white, black, or checkerboard background.
 
 ## Usage
 
 ```text
-使用 $travel-memory-card-duo 把我上传的照片做成完整旅行记忆卡，并同时输出同款六枚透明底 PNG 贴纸图。
+使用 $travel-memory-card-duo 把我上传的 1–5 张照片做成完整旅行记忆卡、同款九枚窄白边透明底 PNG 贴纸图，并在透明 PNG 验证通过后生成贴纸商品包装展示图。
 ```
 
 ## Files
 
 - `SKILL.md` — workflow and output requirements
 - `agents/openai.yaml` — Codex UI metadata
-- `references/style-guide.md` — shared visual language for both images
+- `references/style-guide.md` — shared visual language for all three images
+- `scripts/compose_packaging_preview.py` — deterministic 3×3 packaging-grid compositor
 
 ## Installation
 

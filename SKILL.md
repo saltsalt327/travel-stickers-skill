@@ -1,45 +1,50 @@
 ---
 name: travel-memory-card-duo
-description: "Transform one user-supplied travel, street, landscape, lifestyle, portrait, or pet photo into a coordinated two-image deliverable: one complete horizontal collectible travel memory card and one separate transparent-background PNG containing the exact same six die-cut sticker motifs. Use when Codex needs to P图, stylize a photo as a tactile gouache/cut-paper memory card, provide reusable transparent stickers, make a sticker pack or sticker sheet, or deliver both a finished card and transparent PNG assets. Preserve recognition through one source-derived identification anchor; never retain unintended photography, incidental text, signatures, or watermarks."
+description: "Transform one to five user-supplied travel, street, landscape, lifestyle, portrait, or pet photos into a coordinated three-image deliverable: one complete horizontal collectible travel memory card, one separate transparent-background PNG containing the exact same nine die-cut sticker motifs with narrow cut borders, and one opaque retail-style sticker-packaging preview image. Use when Codex needs to P图, stylize photos as an airy urban-travel watercolor and ink-wash illustration, provide a reusable nine-sticker pack or sticker sheet, create a product packaging mockup, or deliver the complete card, transparent PNG, and packaging preview. Preserve recognition through source-derived identification anchors; never retain unintended photography, incidental text, signatures, or watermarks."
 ---
 
 # Travel Memory Card Duo
 
-Turn one source photo into two matched bitmap deliverables:
+Turn one to five source photos into three matched bitmap deliverables:
 
 1. A finished 3:2 travel memory card.
-2. A 3:2 transparent PNG sticker sheet containing the same six sticker motifs.
+2. A 3:2 transparent PNG sticker sheet containing the same nine sticker motifs.
+3. A 3:4 opaque retail-style sticker-packaging preview image showing the same nine stickers as a complete product set.
 
-Use the image generation/editing tool for both images. Do not simulate the illustration with filters or code. Use local processing only to remove a flat chroma-key background and validate transparency.
+Treat the supplied photos as one source set. Include every supplied image in the relevant image-generation call; if the images exist only in the conversation, pass the smallest `num_last_images_to_include` value that includes all of them (1–5), and if they have local paths, pass all of them as `referenced_image_paths`. When several are provided, choose the strongest photo as the primary composition reference and use the others to supply additional motifs, color cues, or alternate views. Do not make a collage, duplicate a subject, or blend unrelated scenes unless the user explicitly asks for that.
+
+Use the image generation/editing tool for the memory card, transparent sticker sheet, and blank packaging background. Do not simulate or restyle the illustration with filters or code. For the packaging preview only, use the bundled `scripts/compose_packaging_preview.py` to place the validated sticker artwork on the generated background with deterministic spacing; this script composites existing raster assets and does not redraw the illustration. Use local processing for chroma-key removal, alpha validation, and this final layout composition.
 
 ## Workflow
 
-1. Inspect the source photo at full useful detail.
-2. Identify the scene structure, emotional center, dominant spatial gesture, and one compact identification anchor.
-3. Select exactly six meaningful source-derived sticker motifs and exactly three concise English keyword phrases.
+1. Inspect every supplied photo at full useful detail.
+2. Identify the shared or primary scene structure, emotional center, dominant spatial gesture, and one or more compact identification anchors.
+3. Select exactly nine distinct, meaningful source-derived sticker motifs across the source set and exactly three concise English keyword phrases.
 4. Decide whether one source-visible text item genuinely identifies the place. Default to `NONE`; reject advertising, menus, prices, directions, timestamps, and product labels.
 5. Read [references/style-guide.md](references/style-guide.md).
-6. Generate the complete memory card first. Treat its six stickers as the visual master for the second image.
+6. Generate the complete memory card first. Treat its nine stickers as the visual master for the second image.
 7. Inspect the card. Regenerate once if the medium, layout, sticker count, keywords, or readable text is wrong.
-8. Generate a separate sticker sheet from the source photo and finished card. Include exactly the same six motifs, shapes, colors, medium, and warm-white cut borders.
+8. Generate a separate sticker sheet from the source set and finished card. Include exactly the same nine motifs, shapes, colors, medium, and narrow warm-white cut borders.
 9. Produce transparency with the built-in image-generation transparency workflow: generate the sheet on one uniform removable chroma-key color, then run the installed `remove_chroma_key.py` helper. Choose a key color absent from the stickers; prefer `#ff00ff` for foliage-heavy scenes and `#00ff00` otherwise.
-10. Validate the final PNG. It must be RGBA, all four corners must have alpha 0, the six stickers must remain fully opaque apart from antialiased edges, and no key-color fringe may remain. Retry removal once with a slightly stronger tolerance or `--edge-contract 1` if needed.
+10. Validate the final PNG. It must be RGBA, all four corners must have alpha 0, the nine stickers must remain fully opaque apart from antialiased edges, and no key-color fringe may remain. Retry removal once with a slightly stronger tolerance or `--edge-contract 1` if needed.
+11. Only after the transparent PNG passes every validation, generate a blank opaque packaging background with the full-bleed backing card, hang hole, exact title/count text, and empty warm-paper lower area. Inspect the actual lower edge of the backing card, then run `scripts/compose_packaging_preview.py` with that measured pixel coordinate and the validated transparent PNG. This is the third and final image; do not redraw, replace, split, merge, or reinterpret the nine stickers.
+12. Inspect the composed packaging preview. If the background card, title/count text, or product presentation is wrong, regenerate only the blank background and compose again. If the grid is wrong, fix the script inputs or parameters before delivering.
 
 ## Deliverable 1: complete memory card
 
 - Use one 3:2 horizontal canvas on warm off-white uncoated paper with a continuous 4–5% outer margin.
 - Build the left 66–68% as one large near-square unframed illustration above a shallow exposed-paper keyword footer. Do not add an outline, keyline, mat, inner card, rounded frame, or shadow around the illustration.
 - Center exactly three short scene-derived English keyword phrases once beneath the illustration, separated by centered dots: `[keyword 1] · [keyword 2] · [keyword 3]`.
-- Place exactly six separate die-cut stickers in the right 30–32%. Use the full composition height, an uneven size hierarchy, relaxed spacing, thick irregular warm-white hand-cut borders, and subtle flat paper shadows.
+- Place exactly nine separate die-cut stickers in the right 30–32%. Use the full composition height, three loose staggered rows of three (or an equally clear compact asymmetric arrangement), an uneven size hierarchy, relaxed spacing, narrow irregular warm-white hand-cut borders (about 3–6 px at 1536 px output width), and subtle flat paper shadows. Keep every sticker separated and fully visible.
 - Preserve the identification anchor through silhouette, proportion, placement, relationship, and signature colors in the same medium as the whole card.
 - Add no title, caption, date, writing area, postal marks, address lines, subtitle, watermark, or signature.
 
 ## Deliverable 2: transparent sticker PNG
 
 - Use a separate 3:2 horizontal canvas.
-- Include exactly the same six stickers from the finished card; do not redesign, replace, split, merge, or add motifs.
-- Arrange the stickers in two relaxed rows with generous transparent space. Keep every sticker fully visible, separated, and uncropped.
-- Preserve the thick irregular warm-white die-cut border around every sticker.
+- Include exactly the same nine stickers from the finished card; do not redesign, replace, split, merge, or add motifs.
+- Arrange the stickers in three relaxed rows of three with generous transparent space. Keep every sticker fully visible, separated, and uncropped.
+- Preserve a very narrow irregular warm-white die-cut border around every sticker: visually about 3–6 px on a 1536 px-wide output or 0.75–1.25% of the motif width. It must remain visible around antialiased edges but read as a fine cut edge, not a padded halo. Do not create a broad white border or soft white glow.
 - Remove the card paper, shadows, footer, keywords, title, labels, and all readable text.
 - Do not add an overall sheet, panel, frame, texture, floor plane, reflection, or cast/contact shadow.
 - Deliver a real PNG with an Alpha channel. A checkerboard, black, or white preview background is not part of the file.
@@ -59,21 +64,33 @@ python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chro
 
 If the helper needs Pillow, load the Codex workspace dependency runtime and use its Python executable. If soft-matte removal leaves a fringe, retry once with `--edge-contract 1`; if hard-key removal is cleaner for opaque paper stickers, use a sampled key color and a moderate tolerance. Never claim transparency before checking the Alpha channel.
 
+## Deliverable 3: sticker packaging preview
+
+- Generate the blank background only after the transparent nine-sticker PNG has passed Alpha validation, then compose the final image with `scripts/compose_packaging_preview.py`.
+- Use the validated transparent PNG as the immutable visual master. Preserve exactly the same nine sticker motifs, watercolor-and-ink artwork, narrow warm-white cut borders, and source-derived colors. Do not use the packaging preview as the source for either earlier deliverable.
+- Use a 3:4 portrait composition with a near top-down, product-photography presentation. Set a warm cream matte paper background with subtle natural grain and soft diffused daylight.
+- Place the blue-gray paper backing card flush against the top edge and span the full image width edge-to-edge. Target a shorter card occupying about 15–17% of the canvas height; if the generated background exceeds 18%, regenerate the background before composing. Leave no cream margin above it and no side gutters around it; let the canvas crop its top corners if needed. Keep slight rounded lower corners, subtle thickness and shadow, a centered retail hang hole, and centered cream typography. Use an uppercase serif location/theme title; if the place is confidently known use `[PLACE] DAYS`, otherwise use `TRAVEL DAYS`. Add only the exact quantity label `9 PIECES` beneath it in small uppercase sans-serif type.
+- Arrange all nine stickers below the backing card with `scripts/compose_packaging_preview.py`, not by asking the image model to guess the final spacing. The script must use the outermost visible die-cut border as each sticker's boundary and place one sticker in each position of a strict 3×3 product grid. Use identical left and right outer margins, identical column gutters, identical row gutters, and equal top/bottom visible-boundary margins. Target side margins at about 5% of canvas width, column gutters at about 2.5% of canvas width, and both the card-to-first-row and last-row-to-bottom margins at about 2.5% of canvas height. Increase sticker occupancy within each cell to make the nine pieces visibly larger while preserving aspect ratio and the fine 3–6 px border.
+- Preserve the narrow sticker borders. Add only subtle external contact/drop shadows to make the stickers read as physical paper goods; never add shadows inside the transparent PNG.
+- This preview is intentionally opaque and may contain the backing card, paper background, dynamic title, and `9 PIECES` label. It must not contain a checkerboard, source photo, unrelated props, platform UI, watermark, or extra motifs.
+
 ## Shared art direction
 
-- Rebuild the scene from 5–8 broad source-derived matte color families.
-- Make the first read 3–6 oversized blunt shapes and quiet negative space.
-- Use opaque gouache, cut-paper, risograph, or screen-print-like fills with fine uniform paper tooth, chalky hand-cut edges, light pigment variation, and soft misregistration.
-- Compress foliage into 1–3 lumpy tonal masses; reduce buildings and terrain to planes; reduce people and animals to compact faceless silhouettes.
-- Use flat colored shadows rather than gradients. Keep near-black sparse.
-- Keep the mood observational, spacious, humane, slow, and lightly nostalgic.
-- Avoid photorealism, photographic patches, marker strokes, watercolor washes, wet blooms, glossy 3D, dramatic lighting, detailed leaves or anatomy, polished vectors, anime, clip art, and unrelated objects.
+- Rebuild the scene from 5–8 source-derived watercolor color families on a warm ivory paper ground; keep the overall image bright, airy, and lightly sun-washed.
+- Establish the first read with 3–6 clear masses and a strong perspective path, then let selective details describe the place without filling every area equally.
+- Use digital watercolor that preserves traditional watercolor behavior: transparent layered washes, wet-on-wet sky and atmosphere, wet-on-dry architectural accents, pigment pooling, soft blooms, subtle granulation, dry-brush texture, and reserved paper-white highlights.
+- Draw with thin, loose, irregular gray-brown or olive ink contours. Let some edges stay crisp for architecture and focal objects while others feather, break, or dissolve into the wash.
+- Build foliage from layered irregular leaf clusters, visible branch and trunk gestures, and varied green dabs; simplify leaves into expressive shapes rather than botanical studies. Keep buildings readable through perspective, façades, windows, balconies, roofs, and a few decisive lines.
+- Reduce people, cars, and other small subjects to compact, readable silhouettes or color accents with no detailed faces or anatomy. Keep distant forms paler and softer to create atmospheric depth.
+- Use transparent cool blue-gray or green-gray shadow washes with no hard digital gradients. Keep near-black sparse and reserve the strongest contrast for the focal architecture and foreground details.
+- Keep the mood observational, calm, bright, humane, lived-in, and lightly nostalgic, like a hand-painted city travel journal or editorial urban sketch.
+- Avoid photorealism, photographic patches, opaque gouache, cut-paper, risograph, screen-print fills, thick black outlines, marker strokes, glossy 3D, dramatic lighting, botanical leaf studies, detailed anatomy, polished vectors, anime, clip art, and unrelated objects.
 
 ## Motif and keyword rules
 
-- Choose six visible motifs with useful variety: a main-subject fragment, a grouped or paired variation when present, an environmental form, a structural fragment, a functional object, and a small atmospheric or scale cue.
+- Choose nine visible motifs with useful variety across the source set: a main-subject fragment, a grouped or paired variation when present, an environmental form, a structural fragment, a functional object, a small atmospheric or scale cue, and three additional distinct secondary forms or details. Distribute motifs across the supplied photos when meaningful, but never force irrelevant or duplicate stickers just to fill the count.
 - Treat a group visible as one sticker when selected as a grouped motif.
-- Keep all six motifs coarse, source-derived, and stylistically identical across both deliverables.
+- Keep all nine motifs coarse, source-derived, and stylistically identical across both deliverables.
 - Remove lettering when a sticker repeats a landmark sign.
 - Write three precise English keyword phrases grounded in the scene, light, object, or spatial feeling. Prefer `Crater Smoke`, `Blue Summit`, or `Quiet Ridge` over generic words such as `Travel` or `Beautiful`.
 
@@ -83,7 +100,7 @@ If the helper needs Pillow, load the Codex workspace dependency runtime and use 
 
 - The scene is identifiable at a glance but reads first as large shapes and quiet space.
 - The left illustration dominates and is completely unframed.
-- The right column contains exactly six separated stickers with a clear size hierarchy.
+- The right column contains exactly nine separated stickers with a clear size hierarchy and a loose three-row rhythm.
 - Exactly three English keyword phrases appear once beneath the left image.
 - No unintended readable text, watermark, signature, or photographic patch remains.
 
@@ -91,10 +108,18 @@ If the helper needs Pillow, load the Codex workspace dependency runtime and use 
 
 - The file format is PNG and the image mode is RGBA.
 - All four corner alpha values are 0.
-- Exactly six sticker objects remain; none is cropped, touching, or duplicated.
-- The sticker designs match those on the card and retain warm-white cut borders.
+- Exactly nine sticker objects remain; none is cropped, touching, or duplicated.
+- The sticker designs match those on the card and retain narrow warm-white cut borders.
 - No paper sheet, colored background, key-color halo, shadow, label, or extra fragment remains.
+
+### Sticker packaging preview
+
+- The preview is an opaque 3:4 portrait product-style image composed after the transparent PNG validation succeeds, using a generated blank background and the bundled deterministic compositor. The backing card is short enough to leave more vertical area for visibly larger stickers.
+- It shows exactly nine recognizable stickers from the validated PNG, with no redesign, duplication, cropping, or extra motif.
+- The blue-gray backing card touches the top edge, spans the full image width with no top blank strip or side gutters, and occupies only about 15–17% of the canvas height. Its centered hang hole, dynamic title, and exact `9 PIECES` label are present and legible; no other text is needed.
+- The nine stickers occupy a strict 3×3 grid with visibly larger sticker coverage: matching left/right outer margins, matching column gaps, matching row gaps, and matching top/bottom visible-boundary margins. The compositor must make the top margin from the backing card's lower edge to the highest sticker cut border equal to the bottom margin from the lowest sticker cut border to the canvas bottom, with no oversized blank band below the grid. The warm cream paper background, subtle grain, soft diffused lighting, and restrained external sticker shadows create a physical stationery product presentation.
+- No checkerboard, source photo, unrelated props, platform UI, watermark, or transparent-background claim appears in this preview.
 
 ## Delivery
 
-Show both finished images and provide two separate file links. Label them clearly as `完整旅行记忆卡` and `透明底贴纸 PNG`. Briefly name the identification anchor, the six sticker motifs, the three English keyword phrases, and both saved paths. State that a dark or checkerboard preview behind the PNG represents transparency only after Alpha validation succeeds.
+Show all three finished images and provide three separate file links. Label them clearly as `完整旅行记忆卡`, `透明底九枚贴纸 PNG`, and `贴纸商品包装展示图`. Briefly name the identification anchor(s), the nine sticker motifs, the three English keyword phrases, and all three saved paths. State that a dark or checkerboard preview behind the PNG represents transparency only after Alpha validation succeeds; do not describe the opaque packaging preview as transparent.
