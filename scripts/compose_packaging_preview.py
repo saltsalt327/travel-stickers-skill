@@ -11,7 +11,7 @@ from PIL import Image, ImageFilter
 
 
 def connected_components(alpha: Image.Image, threshold: int = 8, minimum: int = 500):
-    """Return the nine substantial connected alpha regions as bounding boxes."""
+    """Return exactly nine substantial alpha regions in row-major order."""
     width, height = alpha.size
     pixels = alpha.load()
     visited = bytearray(width * height)
@@ -50,9 +50,8 @@ def connected_components(alpha: Image.Image, threshold: int = 8, minimum: int = 
             if count >= minimum:
                 regions.append((min_x, min_y, max_x + 1, max_y + 1, count))
 
-    if len(regions) < 9:
+    if len(regions) != 9:
         raise ValueError(f"expected 9 sticker regions, found {len(regions)}")
-    regions = sorted(regions, key=lambda region: region[4], reverse=True)[:9]
     by_top = sorted(regions, key=lambda region: region[1])
     gaps = sorted(
         range(len(by_top) - 1),
@@ -67,6 +66,22 @@ def connected_components(alpha: Image.Image, threshold: int = 8, minimum: int = 
     for row in rows:
         ordered.extend(sorted(row, key=lambda region: region[0]))
     return ordered
+
+
+def extract_sticker_crops(stickers: Image.Image, padding: int = 2) -> list[Image.Image]:
+    """Crop the nine stickers without resizing or altering their RGBA pixels."""
+    if stickers.mode != "RGBA":
+        raise ValueError(f"sticker source must be RGBA, got {stickers.mode}")
+    if padding < 1:
+        raise ValueError("padding must be at least 1 pixel")
+
+    crops = []
+    for min_x, min_y, max_x, max_y, _ in connected_components(stickers.getchannel("A")):
+        crop = stickers.crop((min_x, min_y, max_x, max_y))
+        padded = Image.new("RGBA", (crop.width + 2 * padding, crop.height + 2 * padding), (0, 0, 0, 0))
+        padded.alpha_composite(crop, (padding, padding))
+        crops.append(padded)
+    return crops
 
 
 def fit(image: Image.Image, max_width: int, max_height: int) -> Image.Image:
@@ -88,14 +103,7 @@ def compose(background_path: Path, stickers_path: Path, output_path: Path, card_
     background = Image.open(background_path).convert("RGBA")
     stickers = Image.open(stickers_path).convert("RGBA")
     width, height = background.size
-    regions = connected_components(stickers.getchannel("A"))
-    crops = []
-    for min_x, min_y, max_x, max_y, _ in regions:
-        pad = 2
-        crop = stickers.crop(
-            (max(0, min_x - pad), max(0, min_y - pad), min(stickers.width, max_x + pad), min(stickers.height, max_y + pad))
-        )
-        crops.append(crop)
+    crops = extract_sticker_crops(stickers, padding=2)
 
     side_margin = round(width * 0.05)
     desired_column_gap = round(width * 0.025)
